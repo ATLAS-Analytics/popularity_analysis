@@ -1,4 +1,3 @@
-REGISTER udf.py USING streaming_python AS funcs;
 
 traces = LOAD '/user/lspiedel/tmp/test_l/' USING PigStorage('\t') AS (
 	timestamp:chararray,
@@ -19,29 +18,27 @@ traces = LOAD '/user/lspiedel/tmp/test_l/' USING PigStorage('\t') AS (
 	file_ops:int,
 	distinct_files:int,
 	panda_jobs:int,
-	created_at:float);
+	created_at:long);
 
 --reduce to needed fields
-traces_reduc = FOREACH traces GENERATE eventtype, name, ops, created_at, timestamp;
+traces_reduc = FOREACH traces GENERATE name, ops, created_at, timestamp;
 
 --filter
-filter_null = FILTER traces_reduc BY name != 'NULL';
+filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
+filter_null = FILTER filter_null_name BY created_at IS NOT NULL AND ops IS NOT NULL;
 
+--convert both times into unixtime in seconds
+time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
+DESCRIBE time_conversion;
 
 --generate counts for each name
-group_name = GROUP filter_null BY (name, created_at, timestamp);
+group_name = GROUP time_conversion BY (name, created_at, timestamp);
 counts = FOREACH group_name {
-	job_number = SUM(filter_null.ops);
-	age = funcs.convert_date(group.timestamp);   
-    time_diff = SUBTRACT(age, group.created_at);
-    GENERATE group.name as name, time_diff as time_diff, job_number as accesses; }
+    job_number = SUM(time_conversion.ops);
+    time_diff = group.timestamp - group.created_at;
+    GENERATE time_diff as time_diff, job_number as accesses; }
 
---find distribution
-group_count = GROUP counts BY time_diff;
-dist = FOREACH group_count {
-    accesses = SUM(counts.accesses);
-	GENERATE group as time_diff, accesses as count; }
+--order them for easier analysis
+counts_ordered = ORDER counts BY time_diff ASC;
 
-DUMP dist
---output result
---STORE dist INTO '/user/lspiedel/tmp/time_diff/test_l' USING PigStorage('\t');
+STORE counts_ordered INTO '/user/lspiedel/tmp/dist_by_age' USING PigStorage('\t');

@@ -113,6 +113,7 @@ read_dataset_dids = FILTER dids BY DID_TYPE == 'D';
 
 -- get get the did metadata fields
 reduce_fields_dids = FOREACH read_dataset_dids GENERATE SCOPE as scope, NAME as name, BYTES as bytes, LENGTH as length, PROJECT as project, DATATYPE as datatype, RUN_NUMBER as run_number, STREAM_NAME as stream_name, PROD_STEP as prod_step, VERSION as version, CREATED_AT as created_at;
+DESCRIBE reduce_fields_dids;
 
 -- join the popularity entries and dids metadata
 --join_traces_dids = JOIN reduce_fields_dids BY (scope, name) LEFT OUTER, add_scope_name BY (scope, name);
@@ -126,5 +127,5 @@ order_all = ORDER add_meta BY timestamp ASC, scope ASC, name ASC, user ASC, even
 
 -- store to hdfs
 -- STORE order_all INTO '/user/rucio01/tmp/rucio_popularity/${DATE}' USING PigStorage('\t');
-STORE order_all INTO '/user/lspiedel/tmp/test_l' USING PigStorage('\t');
+-- STORE order_all INTO '/user/lspiedel/tmp/test_l' USING PigStorage('\t');
 
