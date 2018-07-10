@@ -48,7 +48,7 @@ rucio_traces = LOAD '/user/rucio01/traces/traces.${DAYS}.*' USING rucioudfs.Trac
 dids = LOAD '/user/rucio01/dumps/${DATE}/dids' USING AvroStorage();
 
 -- get rid of unused fields in traces
-reduce_fields = FOREACH rucio_traces GENERATE uuid, eventType as eventtype, dataset, usrdn, (int)traceTimeentryUnix as timeentry, appid, filename, account, clientState, remoteSite;
+reduce_fields = FOREACH rucio_traces GENERATE uuid, eventType as eventtype, dataset, usrdn, (long)traceTimeentryUnix as timeentry, appid, filename, account, clientState, remoteSite;
 
 -- only include traces with the timeentry of the chosen date
 filter_time = FILTER reduce_fields BY timeentry >= $START and timeentry < $END;
@@ -58,9 +58,10 @@ filter_null = FILTER filter_time BY dataset != 'NULL';
 
 -- only include traces with a successful client state
 filter_clientstate = FILTER filter_null BY clientState == 'DONE' or clientState == 'FOUND_ROOT';
+DESCRIBE filter_clientstate;
 
 -- add the chosen date as a constant string
-add_day = FOREACH filter_clientstate GENERATE uuid, eventtype, dataset, usrdn, '$DATE' as day, appid, filename, account, remoteSite;
+add_day = FOREACH filter_clientstate GENERATE uuid, eventtype, dataset, usrdn, ROUND(timeentry/1000L)*1000L as day, appid, filename, account, remoteSite;
 
 -- do some filtering based on the eventtype (the appid and user/account fields have different meanings for the different eventtypes and have to be treated separately)
 -- filter only panda jobs (production or analysis)
@@ -120,12 +121,12 @@ DESCRIBE reduce_fields_dids;
 join_traces_dids = JOIN add_scope_name BY (scope, name), reduce_fields_dids BY (scope, name);
 
 -- select the needed fields for the output
-add_meta = FOREACH join_traces_dids GENERATE '$DATE' as timestamp, ((add_scope_name::user IS NULL) ? 'none' : add_scope_name::user) as user, reduce_fields_dids::scope as scope, reduce_fields_dids::name as name, reduce_fields_dids::project as project, reduce_fields_dids::datatype as datatype, reduce_fields_dids::run_number as run_number, reduce_fields_dids::stream_name as stream_name, reduce_fields_dids::prod_step as prod_step, reduce_fields_dids::version as version, ((add_scope_name::eventtype IS NULL) ? 'none' : add_scope_name::eventtype) as eventtype, ((add_scope_name::remotesite IS NULL) ? 'none' : add_scope_name::remotesite) as rse, reduce_fields_dids::bytes as bytes, reduce_fields_dids::length as length, ((add_scope_name::ops IS NULL) ? 0 : add_scope_name::ops) as ops, ((add_scope_name::file_ops IS NULL) ? 0 : add_scope_name::file_ops) as file_ops, ((add_scope_name::distinct_files IS NULL) ? 0 : add_scope_name::distinct_files) as distinct_files, ((add_scope_name::panda_jobs IS NULL) ? 0 : add_scope_name::panda_jobs) as panda_jobs, reduce_fields_dids::created_at as created_at;
+add_meta = FOREACH join_traces_dids GENERATE (add_scope_name::timestamp), ((add_scope_name::user IS NULL) ? 'none' : add_scope_name::user) as user, reduce_fields_dids::scope as scope, reduce_fields_dids::name as name, reduce_fields_dids::project as project, reduce_fields_dids::datatype as datatype, reduce_fields_dids::run_number as run_number, reduce_fields_dids::stream_name as stream_name, reduce_fields_dids::prod_step as prod_step, reduce_fields_dids::version as version, ((add_scope_name::eventtype IS NULL) ? 'none' : add_scope_name::eventtype) as eventtype, ((add_scope_name::remotesite IS NULL) ? 'none' : add_scope_name::remotesite) as rse, reduce_fields_dids::bytes as bytes, reduce_fields_dids::length as length, ((add_scope_name::ops IS NULL) ? 0 : add_scope_name::ops) as ops, ((add_scope_name::file_ops IS NULL) ? 0 : add_scope_name::file_ops) as file_ops, ((add_scope_name::distinct_files IS NULL) ? 0 : add_scope_name::distinct_files) as distinct_files, ((add_scope_name::panda_jobs IS NULL) ? 0 : add_scope_name::panda_jobs) as panda_jobs, reduce_fields_dids::created_at as created_at;
 
 -- order everthing
 order_all = ORDER add_meta BY timestamp ASC, scope ASC, name ASC, user ASC, eventtype ASC;
 
 -- store to hdfs
 -- STORE order_all INTO '/user/rucio01/tmp/rucio_popularity/${DATE}' USING PigStorage('\t');
--- STORE order_all INTO '/user/lspiedel/tmp/test_l' USING PigStorage('\t');
+STORE order_all INTO '/user/lspiedel/tmp/2018-06_test' USING PigStorage('\t');
 

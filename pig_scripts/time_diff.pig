@@ -1,6 +1,6 @@
 
-traces = LOAD '/user/lspiedel/tmp/test_l/' USING PigStorage('\t') AS (
-	timestamp:chararray,
+traces = LOAD '/user/lspiedel/tmp/2018-06_test/' USING PigStorage('\t') AS (
+	timestamp:long,
 	user:chararray,
 	scope:chararray,
 	name:chararray,
@@ -28,8 +28,9 @@ filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND na
 filter_null = FILTER filter_null_name BY created_at IS NOT NULL AND ops IS NOT NULL;
 
 --convert both times into unixtime in seconds
-time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
-DESCRIBE time_conversion;
+--time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
+time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, timestamp;
+--DESCRIBE time_conversion;
 
 --generate counts for each name
 group_name = GROUP time_conversion BY (name, created_at, timestamp);
@@ -48,4 +49,4 @@ counts_aggregated = FOREACH day_groups {
     GENERATE group as bin, freq as freq; }
 
 --ouput
-STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age1' USING PigStorage('\t');
+STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_month_test' USING PigStorage('\t');
