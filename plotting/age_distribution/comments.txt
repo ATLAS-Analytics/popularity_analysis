@@ -1,0 +1,9 @@
+Day graph:
+we don't really have enough data to get the exponential decay we are expecting - too noisy
+Get inidividual peaks on certain days - they are likely individual files that are accessed a lot (as this analysis was only on one days worth of accesses, so any files the same age are made at the same time
+Need to think about excluding these popular files from future analysis - TODO find out file names
+
+Month graph:
+with more data can now see the expected drop off with age
+curious about bump at ~150 days and bump at ~400 days
+the small bumps further out have rectangular peaks are now around 30 days wide - probably the same files seen earlier
