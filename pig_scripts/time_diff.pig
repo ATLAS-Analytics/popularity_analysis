@@ -38,7 +38,14 @@ counts = FOREACH group_name {
     time_diff = group.timestamp - group.created_at;
     GENERATE time_diff as time_diff, job_number as accesses; }
 
---order them for easier analysis
-counts_ordered = ORDER counts BY time_diff ASC;
+--sort data into bins
+counts_days = FOREACH counts GENERATE FLOOR(time_diff/86400L) as days, time_diff, accesses;
 
-STORE counts_ordered INTO '/user/lspiedel/tmp/dist_by_age' USING PigStorage('\t');
+--group by day and find total number of accesses
+day_groups = GROUP counts_days BY days;
+counts_aggregated = FOREACH day_groups {
+    freq = SUM(counts_days.accesses);
+    GENERATE group as bin, freq as freq; }
+
+--ouput
+STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age1' USING PigStorage('\t');
