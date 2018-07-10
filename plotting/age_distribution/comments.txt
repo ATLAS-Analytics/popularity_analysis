@@ -1,9 +1,14 @@
 Day graph:
-we don't really have enough data to get the exponential decay we are expecting - too noisy
-Get inidividual peaks on certain days - they are likely individual files that are accessed a lot (as this analysis was only on one days worth of accesses, so any files the same age are made at the same time
-Need to think about excluding these popular files from future analysis - TODO find out file names
+-we don't really have enough data to get the exponential decay we are expecting - too noisy
+-Get inidividual peaks on certain days - they are likely individual files that are accessed a lot (as this analysis was only on one days worth of accesses, so any files the same age are made at the same time)
+-Need to think about excluding these popular files from future analysis - TODO find out file names
 
 Month graph:
-with more data can now see the expected drop off with age
-curious about bump at ~150 days and bump at ~400 days
-the small bumps further out have rectangular peaks are now around 30 days wide - probably the same files seen earlier
+-with more data can now see the expected drop off with age
+-curious about bump at ~150 days and bump at ~400 days
+-the small bumps further out have rectangular peaks are now around 30 days wide - probably the same files seen earlier
+
+-the _test files were taken to check if being more specific about the time difference affected the result. We got a list of values what were much higher (although the shape stayed the same)
+-looking through an example file with grep shows there are uuid's shared over multiple timestamps 
+-if a job takes a long time different timestamps will presumable correspond to it being split into several smaller records at different times. 
+-Since I am showing my result in days it is worth sticking with assessing this in days - can probably also make sure created_at is in days

@@ -1,0 +1,4 @@
+-Both graphs very similar despite being two different months - good shows our predictions might be consistent over time.
+-Possibly worth checking every month seperately over a year?
+-shows expected exponential decay
+-very large numbers over a month - think about what we are using to define one access to assess if this is reasonable (number of distinct uuid's per dataset/timestamp)
