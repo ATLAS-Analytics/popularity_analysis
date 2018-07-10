@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
-dist_file = open('dist_by_age1/part-r-00000', 'r')
+dist_file = open('dist_by_age_month/part-r-00000', 'r')
 
 # read in from file and split into x-values and y-values
 age = []
@@ -26,4 +25,4 @@ plt.bar(age, counts)
 #plt.xlim(0,50000)
 
 plt.show()
-f.savefig("access_by_age.png")
+f.savefig("access_by_age_month.png")
