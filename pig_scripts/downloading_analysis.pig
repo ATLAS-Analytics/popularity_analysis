@@ -1,6 +1,6 @@
 
 
-traces = LOAD '/user/rucio01/tmp/rucio_popularity/2018-05-*' USING PigStorage('\t') AS (
+traces = LOAD '/user/rucio01/tmp/rucio_popularity/2018-06-*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
@@ -32,6 +32,9 @@ counts = FOREACH group_name {
 	job_number = SUM(filter_null.ops);
 	GENERATE group as name, job_number as accesses; }
 
+dists = FILTER counts BY accesses > 100000;
+DUMP dists;
+
 --find distribution
 group_count = GROUP counts BY accesses;
 dist = FOREACH group_count {
@@ -39,4 +42,4 @@ dist = FOREACH group_count {
 	GENERATE group as accesses, COUNT(datasets) as count; }
 
 --output result
-STORE dist INTO '/user/lspiedel/tmp/dist/2018-05' USING PigStorage('\t');
+--STORE dist INTO '/user/lspiedel/tmp/dist/2018-05' USING PigStorage('\t');

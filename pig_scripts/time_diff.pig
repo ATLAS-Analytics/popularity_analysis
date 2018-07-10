@@ -1,5 +1,5 @@
 
-traces = LOAD '/user/lspiedel/tmp/2018-06_test/' USING PigStorage('\t') AS (
+traces = LOAD '/user/lspiedel/tmp/2018-06/' USING PigStorage('\t') AS (
 	timestamp:long,
 	user:chararray,
 	scope:chararray,
@@ -25,22 +25,33 @@ traces_reduc = FOREACH traces GENERATE name, ops, created_at, timestamp;
 
 --filter
 filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
-filter_null = FILTER filter_null_name BY created_at IS NOT NULL AND ops IS NOT NULL;
+filter_null = FILTER filter_null_name BY created_at IS NOT NULL;
 
 --convert both times into unixtime in seconds
 --time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
 time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, timestamp;
---DESCRIBE time_conversion;
+
 
 --generate counts for each name
-group_name = GROUP time_conversion BY (name, created_at, timestamp);
-counts = FOREACH group_name {
+group_time = GROUP time_conversion BY (name, created_at, timestamp);
+counts = FOREACH group_time {
     job_number = SUM(time_conversion.ops);
     time_diff = group.timestamp - group.created_at;
-    GENERATE time_diff as time_diff, job_number as accesses; }
+    GENERATE group.name as name, time_diff as time_diff, job_number as accesses; }
 
 --sort data into bins
-counts_days = FOREACH counts GENERATE FLOOR(time_diff/86400L) as days, time_diff, accesses;
+counts_days = FOREACH counts GENERATE FLOOR(time_diff/86400L) as days, time_diff, accesses, name;
+
+--find datasets responsible for graph spikes
+group_name = GROUP counts_days BY name;
+counts_name =  FOREACH group_name {
+    spike_begin = MIN(counts_days.days);
+    accesses_dataset = SUM(counts_days.accesses);
+    GENERATE group as name, accesses_dataset as accesses, spike_begin; }
+
+datasets = FILTER counts_name BY (accesses > 100000);
+DUMP datasets;
+DESCRIBE datasets;
 
 --group by day and find total number of accesses
 day_groups = GROUP counts_days BY days;
@@ -49,4 +60,4 @@ counts_aggregated = FOREACH day_groups {
     GENERATE group as bin, freq as freq; }
 
 --ouput
-STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_month_test' USING PigStorage('\t');
+--STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_month_test' USING PigStorage('\t');
