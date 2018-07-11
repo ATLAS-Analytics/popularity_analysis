@@ -1,5 +1,5 @@
 
-traces = LOAD '/user/lspiedel/tmp/2018-06/' USING PigStorage('\t') AS (
+traces = LOAD '/user/lspiedel/tmp/2017/' USING PigStorage('\t') AS (
 	timestamp:long,
 	user:chararray,
 	scope:chararray,
@@ -40,7 +40,7 @@ counts = FOREACH group_time {
     GENERATE group.name as name, time_diff as time_diff, job_number as accesses; }
 
 --sort data into bins
-counts_days = FOREACH counts GENERATE FLOOR(time_diff/86400L) as days, time_diff, accesses, name;
+counts_days = FOREACH counts GENERATE FLOOR(time_diff/2629746L) as days, time_diff, accesses, name;
 
 --find datasets responsible for graph spikes
 group_name = GROUP counts_days BY name;
@@ -60,4 +60,4 @@ counts_aggregated = FOREACH day_groups {
     GENERATE group as bin, freq as freq; }
 
 --ouput
---STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_month_test' USING PigStorage('\t');
+STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_year' USING PigStorage('\t');

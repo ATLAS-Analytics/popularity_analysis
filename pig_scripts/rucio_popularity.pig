@@ -128,5 +128,5 @@ order_all = ORDER add_meta BY timestamp ASC, scope ASC, name ASC, user ASC, even
 
 -- store to hdfs
 -- STORE order_all INTO '/user/rucio01/tmp/rucio_popularity/${DATE}' USING PigStorage('\t');
-STORE order_all INTO '/user/lspiedel/tmp/2018-06_test' USING PigStorage('\t');
+STORE order_all INTO '/user/lspiedel/tmp/2017777777' USING PigStorage('\t');
 
