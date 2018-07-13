@@ -1,6 +1,6 @@
 
-traces = LOAD '/user/lspiedel/tmp/2018-06/' USING PigStorage('\t') AS (
-	timestamp:long,
+traces = LOAD '/user/lspiedel/tmp/rucio_expanded/' USING PigStorage('\t') AS (
+	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
 	name:chararray,
@@ -23,13 +23,19 @@ traces = LOAD '/user/lspiedel/tmp/2018-06/' USING PigStorage('\t') AS (
 --reduce to needed fields
 traces_reduc = FOREACH traces GENERATE name, timestamp;
 
+
 --filter
-filter_null = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
+filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'null';
+filter_null = FILTER filter_null_name BY timestamp IS NOT NULL;
 
 --convert timestamp into unixtime in seconds
---only needed if running off files in rucio01/tmp
---time_conversion = FOREACH filter_null GENERATE name, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
-time_conversion = FOREACH filter_null GENERATE name, GetDay(ToDate(timestamp*1000L)) as timestamp;
+--if running off files in rucio01/tmp
+time_conversion = FOREACH filter_null GENERATE name, GetDay(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
+--if running off files in lspiedel/
+--time_conversion = FOREACH filter_null GENERATE name, GetDay(ToDate((long) timestamp*1000L)) as timestamp; 
+filtered = LIMIT time_conversion 10;
+DUMP filtered;
+DESCRIBE time_conversion;
 
 --generate counts for each name
 group_time = GROUP time_conversion BY name;
@@ -38,7 +44,7 @@ counts = FOREACH group_time {
     limited = LIMIT sorted 1;
     GENERATE FLATTEN(limited); }
 
-DESCRIBE counts;
+--DESCRIBE counts;
 
 group_timestamp = GROUP counts BY limited::timestamp;
 time_dist = FOREACH group_timestamp {
@@ -47,4 +53,4 @@ time_dist = FOREACH group_timestamp {
 
 DUMP time_dist;
 --ouput
-STORE time_dist INTO '/user/lspiedel/tmp/last_acc' USING PigStorage('\t');
+--STORE time_dist INTO '/user/lspiedel/tmp/last_acc_2018-06_new' USING PigStorage('\t');

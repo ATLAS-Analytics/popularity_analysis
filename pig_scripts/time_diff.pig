@@ -1,6 +1,6 @@
 
-traces = LOAD '/user/lspiedel/tmp/2017/' USING PigStorage('\t') AS (
-	timestamp:long,
+traces = LOAD '/user/lspiedel/tmp/rucio_expanded/*' USING PigStorage('\t') AS (
+	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
 	name:chararray,
@@ -27,9 +27,11 @@ traces_reduc = FOREACH traces GENERATE name, ops, created_at, timestamp;
 filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
 filter_null = FILTER filter_null_name BY created_at IS NOT NULL;
 
+test = LIMIT filter_null 10;
+DUMP test;
 --convert both times into unixtime in seconds
---time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
-time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, timestamp;
+time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
+--time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, timestamp;
 
 
 --generate counts for each name
@@ -58,6 +60,6 @@ day_groups = GROUP counts_days BY days;
 counts_aggregated = FOREACH day_groups {
     freq = SUM(counts_days.accesses);
     GENERATE group as bin, freq as freq; }
-
+DUMP counts_aggregated;
 --ouput
-STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_year' USING PigStorage('\t');
+--STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_year' USING PigStorage('\t');
