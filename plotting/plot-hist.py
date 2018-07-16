@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-dist_file = open('last_acc_2018-05/part-r-00000', 'r')
+dist_file = open('dist_by_age_2017/part-r-00000', 'r')
 
 # read in from file and split into x-values and y-values
 x = []
@@ -13,11 +13,11 @@ for line in dist_file:
 
 #plot settings
 f = plt.figure()
-plt.title('Last access date of all files retrieved in 2018-05')
-plt.xlabel('Day')
+plt.title('Frequency of files accessed in 2017')
+plt.xlabel('Age of file at time accessed (days)')
 plt.ylabel('Frequency')
 #plt.xscale('log')
-#plt.yscale('log')
+plt.yscale('log')
 plt.grid(True)
 
 #plot
@@ -25,5 +25,5 @@ plt.bar(x, y)
 #plt.ylim(1,50000)
 #plt.xlim(0,50000)
 
-f.savefig("last_acc_2018-05.png")
+f.savefig("dist_by_age_2017.png")
 plt.show()

@@ -1,5 +1,5 @@
 
-traces = LOAD '/user/lspiedel/tmp/rucio_expanded/' USING PigStorage('\t') AS (
+traces = LOAD '/user/rucio01/tmp/rucio_popularity/2017-*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
@@ -29,13 +29,8 @@ filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND na
 filter_null = FILTER filter_null_name BY timestamp IS NOT NULL;
 
 --convert timestamp into unixtime in seconds
---if running off files in rucio01/tmp
-time_conversion = FOREACH filter_null GENERATE name, GetDay(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
---if running off files in lspiedel/
---time_conversion = FOREACH filter_null GENERATE name, GetDay(ToDate((long) timestamp*1000L)) as timestamp; 
-filtered = LIMIT time_conversion 10;
-DUMP filtered;
-DESCRIBE time_conversion;
+time_conversion = FOREACH filter_null GENERATE name, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp; 
+
 
 --generate counts for each name
 group_time = GROUP time_conversion BY name;
@@ -44,13 +39,13 @@ counts = FOREACH group_time {
     limited = LIMIT sorted 1;
     GENERATE FLATTEN(limited); }
 
---DESCRIBE counts;
-
+--find frequency by day
 group_timestamp = GROUP counts BY limited::timestamp;
 time_dist = FOREACH group_timestamp {
     frequency = COUNT(counts.limited::name);
-    GENERATE group, frequency; }
+    GENERATE group as timestamp, frequency as frequency; }
 
-DUMP time_dist;
+time_out = FOREACH time_dist GENERATE ToString(ToDate(timestamp*1000L), 'yyyy-MM-dd'), frequency;
+DUMP time_out;
 --ouput
---STORE time_dist INTO '/user/lspiedel/tmp/last_acc_2018-06_new' USING PigStorage('\t');
+STORE time_dist INTO '/user/lspiedel/tmp/last_acc_2017_new' USING PigStorage('\t');

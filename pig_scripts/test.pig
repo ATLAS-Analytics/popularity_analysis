@@ -33,4 +33,4 @@ add_meta = FOREACH join_traces_dids GENERATE traces::timestamp, traces::user as 
 
 output_ordered = ORDER add_meta BY timestamp ASC, scope ASC, name ASC, user ASC, eventtype ASC;
 
-STORE output_ordered INTO '/user/lspiedel/tmp/rucio_expanded/${DATE}/' USING PigStorage('\t');
+STORE output_ordered INTO '/user/lspiedel/rucio_expanded_2017/${DATE}/' USING PigStorage('\t');
