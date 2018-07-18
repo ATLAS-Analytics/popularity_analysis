@@ -12,11 +12,11 @@ do
     
     pop_month="2018-06"
 
-    # get the days before and after yesterday
+    # get the days before and after pop_date
     before=$(date -u "+%Y-%m-%d" --date="$pop_date -1 days")
     after=$(date -u "+%Y-%m-%d" --date="$pop_date +1 days")
 
-    # get the unix timestamp for beginning and end of yesterday
+    # get the unix timestamp for beginning and end of pop_date
     timestart=$(date -u "+%s" --date="$pop_date")
     timeend=$(date -u "+%s" --date="$pop_date +24 hours")
     echo $timestart $timeend

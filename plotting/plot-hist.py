@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-dist_file = open('dist_by_age_2017/part-r-00000', 'r')
+dist_file = open('/part-r-00000', 'r')
 
 # read in from file and split into x-values and y-values
 x = []

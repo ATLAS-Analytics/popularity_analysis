@@ -1,0 +1,2 @@
+All as expected - number of accesses quickly deacreases from first week onwards
+Want to look into reanalysing once I have filtered out automatic systems (analysis by user) to see if the low level averages go down
