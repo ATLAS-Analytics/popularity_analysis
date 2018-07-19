@@ -1,14 +1,16 @@
 #!/bin/bash
 
-for DAY in {1..30}
-do
+#for DAY in {1..30}
+#do
+
+pop_date="2018-01-01"
     # get yesterday's date
-    if [ $DAY -lt 10 ]
-    then
-    pop_date="2018-06-0$DAY"
-    else
-    pop_date=" 2018-06-$DAY"
-    fi   
+#    if [ $DAY -lt 10 ]
+#    then
+#    pop_date="2018-06-0$DAY"
+#    else
+#    pop_date=" 2018-06-$DAY"
+#    fi   
     
     pop_month="2018-06"
 
@@ -17,8 +19,8 @@ do
     after=$(date -u "+%Y-%m-%d" --date="$pop_date +1 days")
 
     # get the unix timestamp for beginning and end of pop_date
-    timestart=$(date -u "+%s" --date="$pop_date")
-    timeend=$(date -u "+%s" --date="$pop_date +24 hours")
+    timestart=$(date -u "+%s" --date="$pop_date -4 hours")
+    timeend=$(date -u "+%s" --date="$pop_date +20 hours")
     echo $timestart $timeend
     # the dates that will be loaded in pig
     days={$before,$pop_date,$after}
@@ -39,21 +41,5 @@ do
         fi
     done
 
-done
-#example command to run poplularity pig script
-#DAYS is dates of files to load in
-#DATE is current date
-#START and #END are time specifiers in unix time
-#pig -param DAYS='2017-*' -param DATE='2017-12-31' -param START=1483228800 -param END=1514764799 -l /afs/cern.ch/user/lspiedel/public/rucio/tmp/ rucio_popularity.pig
-
-#READ_IN={0..5}
-
-#for DAY in {0..1}; do
-#    echo "2018-06-0$DAY"
-#    if [ $DAY -lt 10 ]
-#    then
-#        pig -param DAYS="2018-06-0$DAY" -param DATE="2018-06-0$DAY" -param START=1483228800 -param END=1614764799 -l /afs/cern.ch/user/l/lspiedel/public/rucio/tmp/ rucio_popularity.pig -stop-on-error
-#    else
-#        pig -param DAYS="2018-06-$DAY" -param DATE="2018-06-0$DAY" -param START=1483228800 -param END=1614764799 -l /afs/cern.ch/user/l/lspiedel/public/rucio/tmp/ rucio_popularity.pig -stop-on-error
-#    fi
 #done
+

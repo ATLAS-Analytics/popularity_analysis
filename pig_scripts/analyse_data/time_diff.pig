@@ -1,5 +1,6 @@
+REGISTER '/afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py' USING jython AS namefilter
 
-traces = LOAD '/user/lspiedel/rucio_expanded_2017/*' USING PigStorage('\t') AS (
+traces = LOAD '/user/lspiedel/rucio_expanded_2017/2017-01*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
@@ -21,16 +22,15 @@ traces = LOAD '/user/lspiedel/rucio_expanded_2017/*' USING PigStorage('\t') AS (
 	created_at:long);
 
 --reduce to needed fields
-traces_reduc = FOREACH traces GENERATE name, ops, created_at, timestamp;
+traces_reduc = FOREACH traces GENERATE name, user, ops, created_at, timestamp;
 
 --filter
 filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
 filter_null = FILTER filter_null_name BY created_at IS NOT NULL;
+filter_user = FILTER filter_null BY namefilter.isRobot(user);
 
-test = LIMIT filter_null 10;
-DUMP test;
 --convert both times into unixtime in seconds
-time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
+time_conversion = FOREACH filter_user GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
 --time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, timestamp;
 
 
@@ -42,18 +42,18 @@ counts = FOREACH group_time {
     GENERATE group.name as name, time_diff as time_diff, job_number as accesses; }
 
 --sort data into bins
-counts_days = FOREACH counts GENERATE FLOOR(time_diff/2592000L) as days, time_diff, accesses, name;
+counts_days = FOREACH counts GENERATE FLOOR(time_diff/86400L) as days, time_diff, accesses, name;
 
 --find datasets responsible for graph spikes
-group_name = GROUP counts_days BY name;
-counts_name =  FOREACH group_name {
-    spike_begin = MIN(counts_days.days);
-    accesses_dataset = SUM(counts_days.accesses);
-    GENERATE group as name, accesses_dataset as accesses, spike_begin; }
+--group_name = GROUP counts_days BY name;
+--counts_name =  FOREACH group_name {
+--    spike_begin = MIN(counts_days.days);
+--    accesses_dataset = SUM(counts_days.accesses);
+--    GENERATE group as name, accesses_dataset as accesses, spike_begin; }
 
-datasets = FILTER counts_name BY (accesses > 100000);
-DUMP datasets;
-DESCRIBE datasets;
+--datasets = FILTER counts_name BY (accesses > 100000);
+--DUMP datasets;
+--DESCRIBE datasets;
 
 --group by day and find total number of accesses
 day_groups = GROUP counts_days BY days;
@@ -62,4 +62,4 @@ counts_aggregated = FOREACH day_groups {
     GENERATE group as bin, freq as freq; }
 
 --ouput
-STORE counts_aggregated  INTO '/user/lspiedel/tmp/dist_by_age_2017/month' USING PigStorage('\t');
+STORE counts_aggregated  INTO '/user/lspiedel/names/dist_by_age/2017-01-01/robot' USING PigStorage('\t');

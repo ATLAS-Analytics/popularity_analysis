@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-dist_file = open('/part-r-00000', 'r')
+dist_file = open('not_ganga2017/part-r-00000', 'r')
 
 # read in from file and split into x-values and y-values
 datasetCount = []
@@ -14,9 +14,9 @@ for line in dist_file:
 #plot settings
 f = plt.figure()
 plt.xlabel('Number of dataset accesses')
-plt.ylabel('Count')
-#plt.xscale('log')
-#plt.yscale('log')
+plt.ylabel('Frequency')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid(True)
 
 #plot
@@ -27,4 +27,4 @@ plt.plot(datasetCount, counts, marker='o', linewidth=0)
 #plt.xlim(0,50000)
 
 plt.show()
-f.savefig(".png")
+f.savefig("down_ana_not_ganga.png")

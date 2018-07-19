@@ -1,4 +1,4 @@
-
+REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython AS namefilter
 traces = LOAD '/user/lspiedel/rucio_expanded_2017/' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
@@ -21,14 +21,15 @@ traces = LOAD '/user/lspiedel/rucio_expanded_2017/' USING PigStorage('\t') AS (
 	created_at:long);
 
 --reduce to needed fields
-traces_reduc = FOREACH traces GENERATE name, ops, created_at, timestamp;
+traces_reduc = FOREACH traces GENERATE name, user, ops, created_at, timestamp;
 
 --filter
 filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
 filter_null = FILTER filter_null_name BY created_at IS NOT NULL;
+filter_name = FILTER filter_null BY namefilter.isRobot(user);
 
 --convert both times into unixtime in seconds
-time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
+time_conversion = FOREACH filter_name GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
 --time_conversion = FOREACH filter_null GENERATE name, ops, created_at/1000L as created_at, timestamp;
 
 
@@ -40,7 +41,7 @@ counts = FOREACH group_time {
     GENERATE group.name as name, time_diff as time_diff, job_number as accesses; }
 
 --split data into days
-counts_days = FOREACH counts GENERATE FLOOR(time_diff/2592000L) as days, accesses, name;
+counts_days = FOREACH counts GENERATE FLOOR(time_diff/86400L) as days, accesses, name;
 
 first_month = FILTER counts_days BY days<30;
 SPLIT first_month INTO 
@@ -181,4 +182,4 @@ dist = FOREACH group_name {
 
 DUMP dist;
 --ouput
-STORE dist  INTO '/user/lspiedel/file_life/month12' USING PigStorage('\t');
+STORE dist  INTO '/user/lspiedel/names/file_life/robot' USING PigStorage('\t');

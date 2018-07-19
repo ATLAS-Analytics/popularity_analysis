@@ -1,6 +1,6 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython as namefilter
 
-traces = LOAD '/user/lspiedel/tmp/rucio_expanded/' USING PigStorage('\t') AS (
+traces = LOAD '/user/lspiedel/rucio_expanded_2017/' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,

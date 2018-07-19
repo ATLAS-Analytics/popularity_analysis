@@ -61,7 +61,7 @@ filter_clientstate = FILTER filter_null BY clientState == 'DONE' or clientState 
 
 
 -- add the chosen date as a constant string
-add_day = FOREACH filter_clientstate GENERATE uuid, eventtype, dataset, usrdn, appid, $DATE as day, filename, account, remoteSite;
+add_day = FOREACH filter_clientstate GENERATE uuid, eventtype, dataset, usrdn, appid, '$DATE' as day, filename, account, remoteSite;
 
 -- do some filtering based on the eventtype (the appid and user/account fields have different meanings for the different eventtypes and have to be treated separately)
 -- filter only panda jobs (production or analysis)
@@ -128,5 +128,5 @@ order_all = ORDER add_meta BY timestamp ASC, scope ASC, name ASC, user ASC, even
 
 -- store to hdfs
 -- STORE order_all INTO '/user/rucio01/tmp/rucio_popularity/${DATE}' USING PigStorage('\t');
-STORE order_all INTO '/user/lspiedel/tmp/rucio_popularity/${DATE}' USING PigStorage('\t');
+STORE order_all INTO '/user/lspiedel/tmp/rucio_popularity_fix/${DATE}' USING PigStorage('\t');
 

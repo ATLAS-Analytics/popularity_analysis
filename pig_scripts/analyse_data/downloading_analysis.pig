@@ -1,6 +1,6 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython AS namefilter
 
-traces = LOAD '/user/rucio01/tmp/rucio_popularity/2018-06-*' USING PigStorage('\t') AS (
+traces = LOAD '/user/rucio01/tmp/rucio_popularity/2018-06-30' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
@@ -26,21 +26,23 @@ traces_reduc = FOREACH traces GENERATE eventtype, name, ops, user;
 --filter
 filter_null = FILTER traces_reduc BY name != 'NULL';
 filter_user = FILTER filter_null BY NOT namefilter.isRobot(user);
-DUMP filter_user;
+
 --generate counts for each name
 group_name = GROUP filter_user BY name;
 counts = FOREACH group_name {
 	job_number = SUM(filter_user.ops);
 	GENERATE group as name, job_number as accesses; }
 
-dists = FILTER counts BY accesses > 100000;
-DUMP dists;
+--find popular datasets
+--dists = FILTER counts BY accesses > 100000;
+--DUMP dists;
 
 --find distribution
 group_count = GROUP counts BY accesses;
 dist = FOREACH group_count {
 	datasets = DISTINCT counts.name;
 	GENERATE group as accesses, COUNT(datasets) as count; }
-DUMP dist;
+
 --output result
---STORE dist INTO '/user/lspiedel/tmp/dist/2018-05' USING PigStorage('\t');
+DUMP dist
+--STORE dist INTO '/user/lspiedel/names/not_ganga2017' USING PigStorage('\t');

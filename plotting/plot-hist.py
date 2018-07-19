@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-dist_file = open('/part-r-00000', 'r')
+dist_file = open('2017_not_robot/part-r-00000', 'r')
 
 # read in from file and split into x-values and y-values
 x = []
@@ -13,8 +13,8 @@ for line in dist_file:
 
 #plot settings
 f = plt.figure()
-plt.title('Frequency of files accessed in 2017')
-plt.xlabel('Age of file at time accessed (days)')
+plt.title('Distribution of accesses in 2017 by age of file at time accessed')
+plt.xlabel('Age of file (months)')
 plt.ylabel('Frequency')
 #plt.xscale('log')
 plt.yscale('log')
@@ -25,5 +25,5 @@ plt.bar(x, y)
 #plt.ylim(1,50000)
 #plt.xlim(0,50000)
 
-f.savefig("dist_by_age_2017.png")
+f.savefig("dist_by_age_2017_no_robot.png")
 plt.show()
