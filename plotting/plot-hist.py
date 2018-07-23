@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-dist_file = open('2017_not_robot/part-r-00000', 'r')
+dist_file = open('time_between/last/ganga/part-r-00000', 'r')
 
 # read in from file and split into x-values and y-values
 x = []
@@ -12,18 +12,18 @@ for line in dist_file:
     y += [int(seperate[1])]
 
 #plot settings
-f = plt.figure()
-plt.title('Distribution of accesses in 2017 by age of file at time accessed')
-plt.xlabel('Age of file (months)')
+f = plt.figure(figsize=(10,10))
+plt.title('Working out distribution of maximum time between accesses of a dataset 2017')
+plt.xlabel('Max time between accesses (days)')
 plt.ylabel('Frequency')
 #plt.xscale('log')
-plt.yscale('log')
+#plt.yscale('log')
 plt.grid(True)
 
 #plot
-plt.bar(x, y)
+plt.plot(x, y)
 #plt.ylim(1,50000)
 #plt.xlim(0,50000)
 
-f.savefig("dist_by_age_2017_no_robot.png")
+f.savefig("time_between/last/time_between_ganga_not_log.png")
 plt.show()

@@ -1,6 +1,6 @@
 REGISTER '/afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py' USING jython AS namefilter
 
-traces = LOAD '/user/lspiedel/rucio_expanded_2017/2017-01*' USING PigStorage('\t') AS (
+traces = LOAD '/user/lspiedel/rucio_expanded_2017/2017-*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,
@@ -27,7 +27,7 @@ traces_reduc = FOREACH traces GENERATE name, user, ops, created_at, timestamp;
 --filter
 filter_null_name = FILTER traces_reduc BY name IS NOT NULL AND name != '' AND name != 'Null';
 filter_null = FILTER filter_null_name BY created_at IS NOT NULL;
-filter_user = FILTER filter_null BY namefilter.isRobot(user);
+filter_user = FILTER filter_null BY namefilter.isGanga(user);
 
 --convert both times into unixtime in seconds
 time_conversion = FOREACH filter_user GENERATE name, ops, created_at/1000L as created_at, ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd')) as timestamp;
@@ -62,4 +62,4 @@ counts_aggregated = FOREACH day_groups {
     GENERATE group as bin, freq as freq; }
 
 --ouput
-STORE counts_aggregated  INTO '/user/lspiedel/names/dist_by_age/2017-01-01/robot' USING PigStorage('\t');
+STORE counts_aggregated  INTO '/user/lspiedel/names/dist_by_age/2017_days_ganga' USING PigStorage('\t');

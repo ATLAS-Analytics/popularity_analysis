@@ -1,16 +1,16 @@
 #!/bin/bash
 
-#for DAY in {1..30}
-#do
+for DAY in {1..30}
+do
 
-pop_date="2018-01-01"
-    # get yesterday's date
-#    if [ $DAY -lt 10 ]
-#    then
-#    pop_date="2018-06-0$DAY"
-#    else
-#    pop_date=" 2018-06-$DAY"
-#    fi   
+#pop_date="2018-01-01"
+    # get date string
+    if [ $DAY -lt 10 ]
+    then
+    pop_date="2018-06-0$DAY"
+    else
+    pop_date=" 2018-06-$DAY"
+    fi   
     
     pop_month="2018-06"
 
@@ -26,7 +26,7 @@ pop_date="2018-01-01"
     days={$before,$pop_date,$after}
 
     # first pig job to compute popularity and store them on HDFS
-    command1="time pig -param DAYS=\"$days\" -param START=\"$timestart\" -param END=\"$timeend\" -param DATE=\"$pop_date\" -param MONTH=\"$pop_month\" -f rucio_popularity.pig"
+    command1="time pig -l ./log/ -param DAYS=\"$days\" -param START=\"$timestart\" -param END=\"$timeend\" -param DATE=\"$pop_date\" -param MONTH=\"$pop_month\" -f rucio_popularity.pig"
 
     echo $days
     for i in {0..4}
@@ -41,5 +41,5 @@ pop_date="2018-01-01"
         fi
     done
 
-#done
+done
 

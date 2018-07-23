@@ -30,15 +30,13 @@ distinct_users = FOREACH group_user {
     acc = SUM(traces_reduc.ops);
     GENERATE group as user, acc as acc; }
 
-users_filtered = FILTER distinct_users BY namefilter.isRobot(user);
+users_filtered = FILTER distinct_users BY NOT namefilter.isGanga(user);
 
-users_renamed = FOREACH distinct_users GENERATE namefilter.getUser(user), acc;
+users_renamed = FOREACH distinct_users GENERATE namefilter.getUser(user) as user, acc;
 group_user_short = GROUP users_renamed BY user;
 out = FOREACH group_user_short {
     acc = SUM(users_renamed.acc);
     GENERATE group as user, acc as acc; }
-
-
 DUMP out;
 
 --ouput
