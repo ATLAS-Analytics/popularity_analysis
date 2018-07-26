@@ -31,7 +31,7 @@ from load_func import readIn, convDf
 sqlContext = SQLContext(sc)
 
 #read in full file
-lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01*")
+lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-*")
 traces = readIn(lines)
 #convert to dataframe
 df = sqlContext.createDataFrame(traces)
@@ -40,17 +40,11 @@ df_conv = convDf(df)
 #find correlations
 names = df_conv.schema.names
 pd_conv = df_conv.toPandas()
-np_conv = pd_conv.corr().values()
-print np_conv
+corr = pd_conv.corr()
 
-#correl = np.zeros((len(names),len(names)))
-#i, j = 0, 0
-#for col1 in df_corr.schema.names:
-#    for col2 in df_corr.schema.names:
-#        value = df_corr.stat.corr(col1, col2)
-#        correl[i][j] = value
-#        i += 1
-#    i=0
-#    j += 1
-#print correl
-#plot_corr(correl, names)
+#plot heatmap
+plt.matshow(corr)
+plt.xticks(range(len(corr.columns)), corr.columns, rotation=90);
+plt.yticks(range(len(corr.columns)), corr.columns);
+plt.colorbar()
+plt.show()

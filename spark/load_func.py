@@ -89,4 +89,4 @@ def convDf(df):
     timeDiff = df_time["timestamp"] - df_time["created_at"]
     df_diff = df_time.withColumn("diff", timeDiff)
     
-    return df_diff
+    return df_diff.drop("created_at").drop("timestamp")
