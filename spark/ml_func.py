@@ -1,5 +1,8 @@
 import pyspark.ml.feature as mlf
 
+#convert type 
+def typeConv(df, col, colType): 
+    return df.withColumn(col, df[col].cast(colType)) 
 #index strings
 def to_index(df, col):
     outcol = col + "_idx"

@@ -6,30 +6,22 @@ from pyspark.sql import SQLContext, Row
 from pyspark.sql.types import BooleanType 
 
 
-#convert type
-def typeConv(df, col, colType):
-    return df.withColumn(col, df[col].cast(colType))
-#index strings
-def to_index(df, col):
-    outcol = col + "_idx"
-    indexer =  mlf.StringIndexer(inputCol=col, outputCol=outcol)
-    #print indexer.params()
-    return indexer.fit(df).transform(df).drop(col)
+##convert type
+#def typeConv(df, col, colType):
+#    return df.withColumn(col, df[col].cast(colType))
+##index strings
+#def to_index(df, col):
+#    outcol = col + "_idx"
+#    indexer =  mlf.StringIndexer(inputCol=col, outputCol=outcol)
+#    #print indexer.params()
+#    return indexer.fit(df).transform(df).drop(col)
 #from index
-def from_index(df, col):
-    outcol = col[:-4]
-    converter = mlf.IndexToString(inputCol=col, outputCol=outcol)
-    return convertertransform(df).drop(col)
-#plot histogram
-def hist(df, col):
-    binned = df.select(col).rdd.flatMap(lambda row: row).histogram(20)
-    print binned
-    data = { 'bins': binned[0][:-1], 'freq': binned[1] }
-    plt.bar(data['bins'], data['freq'], width=100.0)
-    plt.xscale("log")
-    histTitle = "Histogram of " + col
-    plt.title(histTitle)
-    plt.show()
+#def from_index(df, col):
+#    outcol = col[:-4]
+#    converter = mlf.IndexToString(inputCol=col, outputCol=outcol)
+#    return convertertransform(df).drop(col)
+
+
 #function to take in rdd read in from file and output a rdd with a schema
 def readIn(lines, seperator='\t'):
     #split line
@@ -59,7 +51,7 @@ def readIn(lines, seperator='\t'):
 #function to preprocess dataframe
 def convDf(df):
     from udf_namefilter import isRobot, getUser, getTime
-
+    from ml_func import typeConv, to_index
     #remove lines with empty strings
     df_nona = df.na.drop()
     for col in df_nona.schema.names:

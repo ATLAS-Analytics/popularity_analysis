@@ -1,13 +1,11 @@
 import pyspark.sql.functions as F
 from pyspark import SparkContext, SparkConf 
 from pyspark.sql import SQLContext, Row
-from pyspark.sql.types import BooleanType, LongType
+from pyspark.sql.types import BooleanType
 import matplotlib.pyplot as plt
 import pandas as pd
 import pyspark.ml as ml
 import pyspark.ml.feature as mlf
-import numpy as np
-import pyspark.mllib.stat as stat
 
 #function to start spark instance
 def get_spark(): 
@@ -16,27 +14,35 @@ def get_spark():
 		.set("spark.authenticate.secret","thisisasecret"))	
 	return SparkContext(conf=conf)
 
-#convert type
-def typeConv(df, col, colType):
-    return df.withColumn(col, df[col].cast(colType))
-
 #initialise spark and inlude other python files
 sc = get_spark()
 sc.addPyFile("udf_namefilter.py")
-sc.addPyFile("ml_func.py")
 sc.addPyFile("load_func.py")
-
 from load_func import readIn, convDf
+#from udf_namefilter import isRobot, getUser
 sqlContext = SQLContext(sc)
 
 #read in full file
-lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-*")
-traces = readIn(lines)
-#convert to dataframe
+lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-01*")
+traces = readIn(lines, '\t')
 df = sqlContext.createDataFrame(traces)
 df_conv = convDf(df)
+group = ["name", "scope_idx", "project_idx", "datatype_idx", "run_number", "stream_name_idx", "prod_step_idx", "length", "bytes"]
 
-#find correlations
+def make_col(x,col):
+   cnd = F.when(F.col("diff") < x, F.col(col)).otherwise(0)
+   return F.sum(cnd).alias(str(x))
+
+e_ops = [make_col(x, "ops") for x in [86400000, 604800000, 2629746000, 31536000000]]
+
+df_byname = df_conv.groupBy(group).agg(
+    F.countDistinct("rse_idx").alias("nrse"), 
+    F.countDistinct("user_idx").alias("nuser"),
+    *e_ops 
+    )
+df_byname.show()
+df_byname.describe().show()
+
 def corr(df):
     names = df.schema.names
     pd_conv = df.toPandas()
@@ -49,4 +55,6 @@ def corr(df):
     plt.colorbar()
     plt.show()
 
-corr(df_conf)
+corr(df_byname)
+
+sc.stop()
