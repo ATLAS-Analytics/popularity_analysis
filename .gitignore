@@ -1,3 +1,4 @@
 *.log
 test/
 venv2.7/
+*.pyc
