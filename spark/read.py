@@ -14,17 +14,6 @@ def get_spark():
 		.set("spark.authenticate.secret","thisisasecret"))	
 	return SparkContext(conf=conf)
 
-#plot histogram
-def hist(df, col):
-    binned = df.select(col).rdd.flatMap(lambda row: row).histogram(20)
-    print binned
-    data = { 'bins': binned[0][:-1], 'freq': binned[1] }
-    plt.bar(data['bins'], data['freq'], width=100.0)
-    plt.yscale("log")
-    histTitle = "Histogram of " + col
-    plt.title(histTitle)
-    plt.show()
-
 #initialise spark and inlude other python files
 sc = get_spark()
 sc.addPyFile("udf_namefilter.py")
@@ -42,6 +31,13 @@ df = sqlContext.createDataFrame(traces)
 
 df_conv = convDf(df).drop("name")
 df_filter = df_conv.na.drop()
-hist(df_conv, "ops")
+corr = corr_pys(df_filter)
+plot(corr, df_conv.schema.names, "temp.png")
+
+#ops_list = ["ops", "file_ops", "distinct_file", "panda_jobs"]
+#corr = corr_pys(df_filter[ops_list])
+#plot(corr, ops_list, "ops_values")
+
+#hist(df_conv, "ops")
 
 sc.stop()

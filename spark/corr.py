@@ -19,21 +19,21 @@ def corr_pys(df):
 
 
 def plot(df, df_names, filename):
-    
+    #set plot size
+    fig, ax = plt.subplots(figsize=(10,10)) 
+    #set colours
     cmap = plt.cm.get_cmap("plasma",lut=10)
     bounds = np.arange(0.0, 1.1, 0.1)
     norm = colors.BoundaryNorm(bounds, cmap.N)
     
     #plot heatmap
-    fig = plt.figure(figsize=(10,10))
-    #plot type
-    plt.matshow(np.absolute(df), cmap=cmap, norm=norm)
+    plot = ax.matshow(np.absolute(df), cmap=cmap, norm=norm)
     #x and y labels
     plt.xticks(range(len(df_names)), df_names, rotation=90);
     plt.yticks(range(len(df_names)), df_names);
     #colorbar
-    plt.colorbar(cmap=cmap, norm=norm)
+    cbar = fig.colorbar(plot)
     
     filepath = "./corr_img/" + filename
-    plt.savefig(filepath)
+    fig.savefig(filepath)
     plt.show()
