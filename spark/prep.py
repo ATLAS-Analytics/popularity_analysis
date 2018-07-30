@@ -18,7 +18,9 @@ def get_spark():
 sc = get_spark()
 sc.addPyFile("udf_namefilter.py")
 sc.addPyFile("load_func.py")
+sc.addPyFile("corr.py")
 from load_func import readIn, convDf
+from corr import corr_pd, corr_pys, plot
 #from udf_namefilter import isRobot, getUser
 sqlContext = SQLContext(sc)
 
@@ -29,32 +31,26 @@ df = sqlContext.createDataFrame(traces)
 df_conv = convDf(df)
 group = ["name", "scope_idx", "project_idx", "datatype_idx", "run_number", "stream_name_idx", "prod_step_idx", "length", "bytes"]
 
+#function take a value, x, and a column 
+#returns the sum of the values in the column where the dif is less than x
 def make_col(x,col):
    cnd = F.when(F.col("diff") < x, F.col(col)).otherwise(0)
    return F.sum(cnd).alias(str(x))
 
-e_ops = [make_col(x, "ops") for x in [86400000, 604800000, 2629746000, 31536000000]]
+#prepare by grouping by dataset and finding wanted stats
+def prep(df):
+    e_ops = [make_col(x, "ops") for x in [86400000, 604800000, 2629746000]]
 
-df_byname = df_conv.groupBy(group).agg(
-    F.countDistinct("rse_idx").alias("nrse"), 
-    F.countDistinct("user_idx").alias("nuser"),
-    *e_ops 
-    )
-df_byname.show()
-df_byname.describe().show()
+    df_byname = df.groupBy(group).agg(
+        F.countDistinct("rse_idx").alias("nrse"), 
+        F.countDistinct("user_idx").alias("nuser"),
+        *e_ops
+        )
+    return df_byname
 
-def corr(df):
-    names = df.schema.names
-    pd_conv = df.toPandas()
-    corr = pd_conv.corr()
-
-    #plot heatmap
-    plt.matshow(corr)
-    plt.xticks(range(len(corr.columns)), corr.columns, rotation=90);
-    plt.yticks(range(len(corr.columns)), corr.columns);
-    plt.colorbar()
-    plt.show()
-
-corr(df_byname)
-
+df_byname = prep(df_conv).drop("name")
+#df_byname.printSchema()
+print corr_pd(df_byname)
+print corr_pys(df_byname)
+#plot(corr, df_byname.schema.names)
 sc.stop()

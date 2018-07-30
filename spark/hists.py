@@ -29,16 +29,26 @@ def hist(df, col):
 sc = get_spark()
 sc.addPyFile("udf_namefilter.py")
 sc.addPyFile("load_func.py")
+sc.addPyFile("corr.py")
 from load_func import readIn, convDf
+from corr import plot, corr_pys, corr_pd
 #from udf_namefilter import isRobot, getUser
 sqlContext = SQLContext(sc)
 
 #read in full file
-lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-*")
+lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-*")
 traces = readIn(lines, '\t')
 df = sqlContext.createDataFrame(traces)
 
-df_conv = convDf(df) 
-hist(df_conv, "ops")
+df_conv = convDf(df).drop("name")
+df_filter = df_conv.na.drop()
+corr = corr_pys(df_filter)
+plot(corr, df_conv.schema.names, "temp.png")
+
+#ops_list = ["ops", "file_ops", "distinct_file", "panda_jobs"]
+#corr = corr_pys(df_filter[ops_list])
+#plot(corr, ops_list, "ops_values")
+
+#hist(df_conv, "ops")
 
 sc.stop()
