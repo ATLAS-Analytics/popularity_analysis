@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pyspark.ml as ml
 import pyspark.ml.feature as mlf
+##################################################################################
+#Functions and code to prepare input df for machine learning
 
 #function to start spark instance
 def get_spark(): 
@@ -37,7 +39,7 @@ def prep(df):
         )
     return df_byname
    
-
+#can run file directly for testing
 if __name__ == "__main__":
     #initialise spark and inlude other python files
     sc = get_spark()
@@ -54,17 +56,8 @@ if __name__ == "__main__":
     traces = readIn(lines, '\t')
     df = sqlContext.createDataFrame(traces)
     df_conv = convDf(df)
- 
-    df_byname = prep(df_conv)
-    print "Grouped by name: ",
-    print df_byname.groupBy("name").count().count()
-    print 
-    df_byname = df_byname.drop("name")
-    df_byname.show()
-    print df_byname.count()
    
     #corr = corr_pd(df_byname)
     
     #plot(corr, df_byname.schema.names, "temp")
-    #plot(corr, df_byname.schema.names)
     sc.stop()

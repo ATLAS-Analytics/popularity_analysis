@@ -1,19 +1,15 @@
 import pyspark.sql.functions as F
-from pyspark import SparkContext, SparkConf 
-from pyspark.sql import SQLContext, Row
-from pyspark.sql.types import BooleanType
-import matplotlib.pyplot as plt
-import pandas as pd
-import pyspark.ml as ml
-import pyspark.ml.feature as mlf
+#####################################################################################
+#Function to label an input dataframe based on if values are in another dataframe
 
 #function to apply a label to each row in dataset
 def get_labels(df_current, df_next):
     
     #just look at name column from second df
-    df_nameList = df_next.select('name').withColumnRenamed("name", "name_2")
+    df_nameList = df_next.select('name').withColumnRenamed("name", "Label")
     #join by name to see which value in df_current are in df_next
-    df_comp = df_current.join(df_nameList, df_current.name == df_nameList.name_2, how='left_outer')
-
-    df_lab = df_comp.withColumn("name_2", F.when(df_comp.name_2.isNotNull(), 1).otherwise(0).alias("Label"))
+    df_comp = df_current.join(df_nameList, df_current.name == df_nameList.Label, how='left_outer')
+    df_lab = df_comp.withColumn("Label", F.when(df_comp.Label.isNotNull(), 1).otherwise(0))
+    df_lab.printSchema()
+    df_lab.groupBy("Label").count().show()
     return df_lab

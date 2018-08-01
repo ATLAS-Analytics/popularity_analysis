@@ -1,5 +1,7 @@
 import re
 from datetime import datetime
+#####################################################################################
+#Functions to filter out users, get username from long user and convert a time string into unixtime
 
 #udf to filter out ganga accesses
 def isGanga(user):
@@ -48,7 +50,7 @@ def getUser(user):
     
     else:
         return user
-
+#function to convert input timestamp string, - seperated, into unixtime
 def getTime(timestamp):
     timeList = timestamp.split("-")
     d = datetime(int(timeList[0]), int(timeList[1]), int(timeList[2]))

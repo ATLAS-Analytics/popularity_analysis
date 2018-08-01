@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pyspark.ml as ml
 import pyspark.ml.feature as mlf
+#################################################################################
+#Code to plot a histogram of one variable, created to test plotting
 
 #function to start spark instance
 def get_spark(): 

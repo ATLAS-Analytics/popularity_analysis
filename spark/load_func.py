@@ -1,9 +1,10 @@
-import pyspark.ml.feature as mlf
-import pyspark.ml as ml
-import pyspark.sql.functions as F 
-from pyspark import SparkContext, SparkConf  
-from pyspark.sql import SQLContext, Row 
+#import pyspark.ml.feature as mlf
+#import pyspark.ml as ml
+import pyspark.sql.functions as F  
+from pyspark.sql import Row
 from pyspark.sql.types import BooleanType 
+##################################################################################################
+#Reading in functions
 
 #function to take in rdd read in from file and output a rdd with a schema
 def readIn(lines, seperator='\t'):
@@ -55,7 +56,7 @@ def convDf(df):
         df_user = typeConv(df_user, longcol, "long")
     df_indexed = df_user
     #index strings
-    cols = ['user', 'scope', 'project', 'datatype', 'stream_name', 'prod_step', 'version', 'rse', 'eventtype']
+    cols = ['user', 'scope', 'project', 'datatype', 'stream_name', 'prod_step', 'version', 'rse']#, 'eventtype']
     for col in cols:
         df_indexed = to_index(df_indexed, col)
     #convert timestamp to long and find time difference as diff

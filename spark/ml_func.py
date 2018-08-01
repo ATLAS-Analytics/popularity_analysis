@@ -1,4 +1,7 @@
 import pyspark.ml.feature as mlf
+###########################################################################
+#indexing functions and type conversion
+
 
 #convert type 
 def typeConv(df, col, colType): 
