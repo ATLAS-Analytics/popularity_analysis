@@ -4,6 +4,7 @@ from pyspark.sql import SQLContext#, Row
 import pyspark.ml as ml
 import pyspark.ml.feature as mlf
 from pyspark.ml.classification import DecisionTreeClassifier
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator, BinaryClassificationEvaluator
 #############################################################################
 #Program to perform machine learning
 
@@ -41,26 +42,44 @@ df02 = sqlContext.createDataFrame(traces02)
 
 #convert them to vectors
 df_conv01 = convDf(df01)
-df_conv02 = convDf(df01)
 
 #prepare for ml
 df_prepped01 = prep(df_conv01)
-df_prepped02 = prep(df_conv02)
+df_prepped02 = df02.select("name").distinct()
 
-#need some function to apply labels
+
+#function to apply labels
 df_labeled = get_labels(df_prepped01, df_prepped02).drop("name")
-df_labaled = df_labeled.na.drop() 
-cols_for_ml = df_prepped01.drop("name").schema.names
+df_labeled = df_labeled.na.drop().drop("version_idx") 
+cols_for_ml = df_prepped01.drop("name").drop("version_idx").schema.names
 
+#pipline stages
+#index the label
+labelIndexer = mlf.StringIndexer(inputCol="Label", outputCol="Label_idx")
+#vectorise the input
 toVec = mlf.VectorAssembler(inputCols=cols_for_ml, outputCol="Features")
-vecIndexer = mlf.VectorIndexer(inputCol='Features', outputCol="Features_idx")
-classifier = DecisionTreeClassifier(labelCol="Label", featuresCol="Features_idx")
+#classify
+classifier = DecisionTreeClassifier(labelCol="Label_idx", featuresCol="Features", maxBins = 137)
 
-pipeline = ml.Pipeline(stages=[toVec, vecIndexer, classifier])
+pipeline = ml.Pipeline(stages=[labelIndexer, toVec, classifier])
 
 train, test = df_labeled.randomSplit([0.9, 0.1], seed=12345)
-test = toVec.transform(train).show(20, False)
-#vecIndexer.transform(test).show(20, False)
 
-df_pip = pipeline.fit(train.na.drop())
-df_fin = df_pip.transform(test).show()
+df_pip = pipeline.fit(train)
+predicted = df_pip.transform(test)
+predicted.select("Features", "Label_idx", "prediction").show()
+def evaluate(method, predicted):
+    evaluator_acc = MulticlassClassificationEvaluator(
+        labelCol="Label_idx", predictionCol="prediction", metricName=method)
+    accuracy = evaluator.evaluate(predicted)
+    return accuracy
+
+print "precision is " + evaluate("accuracy", predicted)
+print "Recall is " + evaluate("recall", predicted)
+#print "precision is " + evaluate(accuracy, predicted)
+#print "precision is " + evaluate(accuracy, predicted)
+bin_eval = BinaryClassificationEvaluator(labelCol="Label_idx", rawPredictionCol="rawPrediction")
+print bin_eval.evaluate(predicted)
+treeModel = df_pip.stages[3]
+# summary only
+print(treeModel)
