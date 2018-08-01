@@ -55,7 +55,7 @@ def convDf(df):
         df_user = typeConv(df_user, longcol, "long")
     df_indexed = df_user
     #index strings
-    cols = ['user', 'scope', 'project', 'datatype', 'stream_name', 'prod_step', 'version', 'eventtype', 'rse']
+    cols = ['user', 'scope', 'project', 'datatype', 'stream_name', 'prod_step', 'version', 'rse', 'eventtype']
     for col in cols:
         df_indexed = to_index(df_indexed, col)
     #convert timestamp to long and find time difference as diff

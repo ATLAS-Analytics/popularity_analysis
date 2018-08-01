@@ -1,9 +1,8 @@
 import pyspark.sql.functions as F
-#from python_project.spark import get_spark
 from pyspark import SparkContext, SparkConf 
 from pyspark.sql import SQLContext 
 import matplotlib.pyplot as plt
-import pandas as pd
+
 
 def get_spark(): 
 	conf = (SparkConf()
@@ -11,7 +10,8 @@ def get_spark():
 		.set("spark.authenticate.secret","thisisasecret"))	
 	return SparkContext(conf=conf)
 
-
+######################################################################
+#File to analyse distribution of downloads and plot it using matplotlib
 sc = get_spark()
 
 sqlContext = SQLContext(sc)
@@ -37,10 +37,10 @@ df_counts_ordered.show(20)
 #output
 df_counts_pd = df_counts_ordered.toPandas()
 
-
+#plot result
 fig = plt.figure()
 plt.yscale('log')
 plt.xscale('log')
 df_counts_pd.plot(x="Number of file downloads", y="count")
-#plt.plot(df_counts_pd["Number of file downloads"], df_counts_pd["count"], 'o')
-#plt.show()
+plt.plot(df_counts_pd["Number of file downloads"], df_counts_pd["count"], 'o')
+plt.show()

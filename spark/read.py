@@ -32,7 +32,7 @@ df = sqlContext.createDataFrame(traces)
 df_conv = convDf(df).drop("name")
 df_filter = df_conv.na.drop()
 corr = corr_pys(df_filter)
-plot(corr, df_conv.schema.names, "temp.png")
+plot(corr, df_conv.schema.names, "2017-lab.png")
 
 #ops_list = ["ops", "file_ops", "distinct_file", "panda_jobs"]
 #corr = corr_pys(df_filter[ops_list])

@@ -14,43 +14,57 @@ def get_spark():
 		.set("spark.authenticate.secret","thisisasecret"))	
 	return SparkContext(conf=conf)
 
-#initialise spark and inlude other python files
-sc = get_spark()
-sc.addPyFile("udf_namefilter.py")
-sc.addPyFile("load_func.py")
-sc.addPyFile("corr.py")
-from load_func import readIn, convDf
-from corr import corr_pd, corr_pys, plot
-#from udf_namefilter import isRobot, getUser
-sqlContext = SQLContext(sc)
-
-#read in full file
-lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-01*")
-traces = readIn(lines, '\t')
-df = sqlContext.createDataFrame(traces)
-df_conv = convDf(df)
-group = ["name", "scope_idx", "project_idx", "datatype_idx", "run_number", "stream_name_idx", "prod_step_idx", "length", "bytes"]
-
 #function take a value, x, and a column 
 #returns the sum of the values in the column where the dif is less than x
 def make_col(x,col):
    cnd = F.when(F.col("diff") < x, F.col(col)).otherwise(0)
-   return F.sum(cnd).alias(str(x))
+   return F.sum(cnd).alias(str(x/86400000))
 
 #prepare by grouping by dataset and finding wanted stats
 def prep(df):
-    e_ops = [make_col(x, "ops") for x in [86400000, 604800000, 2629746000]]
+    e_ops = [make_col(x, "ops") for x in [86400000, 604800000]]
+    count_cnd = lambda cond: F.sum(F.when(cond, 1).otherwise(0)) 
+    group = ["name", "scope_idx", "datatype_idx", "run_number", "prod_step_idx", "version_idx"]# "bytes", "length"]
 
+    #for some reason bytes and length aren't dataset specific, so I've just taken the max here
     df_byname = df.groupBy(group).agg(
+        F.max("bytes").alias("bytes"),
+        F.max("length").alias("length"),
         F.countDistinct("rse_idx").alias("nrse"), 
         F.countDistinct("user_idx").alias("nuser"),
+        count_cnd(F.col("eventtype") == "get_sm").alias("get_sm_count"),
         *e_ops
         )
     return df_byname
+   
 
-df_byname = prep(df_conv).drop("name")
-#df_byname.printSchema()
-print corr_pd(df_byname)
-print corr_pys(df_byname)
-#plot(corr, df_byname.schema.names)
-sc.stop()
+if __name__ == "__main__":
+    #initialise spark and inlude other python files
+    sc = get_spark()
+    sc.addPyFile("udf_namefilter.py")
+    sc.addPyFile("load_func.py")
+    sc.addPyFile("corr.py")
+    from load_func import readIn, convDf
+    from corr import corr_pd, corr_pys, plot
+    #from udf_namefilter import isRobot, getUser
+    sqlContext = SQLContext(sc)
+    
+    #read in full file
+    lines = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-*")
+    traces = readIn(lines, '\t')
+    df = sqlContext.createDataFrame(traces)
+    df_conv = convDf(df)
+ 
+    df_byname = prep(df_conv)
+    print "Grouped by name: ",
+    print df_byname.groupBy("name").count().count()
+    print 
+    df_byname = df_byname.drop("name")
+    df_byname.show()
+    print df_byname.count()
+   
+    #corr = corr_pd(df_byname)
+    
+    #plot(corr, df_byname.schema.names, "temp")
+    #plot(corr, df_byname.schema.names)
+    sc.stop()
