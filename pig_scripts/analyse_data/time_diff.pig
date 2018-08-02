@@ -1,4 +1,5 @@
 REGISTER '/afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py' USING jython AS namefilter
+--script to find the distribution of time difference against accesses
 
 traces = LOAD '/user/lspiedel/rucio_expanded_2017/2017-*' USING PigStorage('\t') AS (
 	timestamp:chararray,

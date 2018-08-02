@@ -1,6 +1,8 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython AS namefilter
 
-traces = LOAD '/user/rucio01/tmp/rucio_popularity/2018-06-30' USING PigStorage('\t') AS (
+--function to find distribution of number of ops for each dataset
+
+traces = LOAD '/user/rucio01/tmp/rucio_popularity/2018-06-*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
 	scope:chararray,

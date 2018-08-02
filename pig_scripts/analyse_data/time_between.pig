@@ -1,5 +1,7 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython AS namefilter
 
+--find either the largest difference between two accesses in time period, or distance between the last two
+
 traces = LOAD '/user/rucio01/tmp/rucio_popularity/2017-01-*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,

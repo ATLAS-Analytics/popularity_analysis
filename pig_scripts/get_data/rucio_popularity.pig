@@ -6,6 +6,7 @@ REGISTER /usr/lib/pig/lib/avro.jar;
 REGISTER /usr/lib/avro/avro-mapred.jar;
 REGISTER /afs/cern.ch/user/t/tbeerman/public/pig/udfs.py using jython as udfs;
 
+--Script edited from thomas, loads in traces and aggregates, than values from dids are added
 
 rucio_traces = LOAD 'hdfs:///user/rucio01/traces/traces.${DAYS}.*' USING rucioudfs.TracesLoader() as (
  account: chararray,
@@ -128,7 +129,6 @@ order_all = ORDER add_meta BY timestamp ASC, scope ASC, name ASC, user ASC, even
 
 -- store to hdfs
 -- STORE order_all INTO '/user/rucio01/tmp/rucio_popularity/${DATE}' USING PigStorage('\t');
---STORE order_all INTO '/user/lspiedel/tmp/rucio_popularity_fix/${DATE}' USING PigStorage('\t');
---more effective to use cvs here?
-STORE order_all INTO '/user/lspiedel/json/test/${DATE}.json' USING JsonStorage();
+STORE order_all INTO '/user/lspiedel/tmp/rucio_popularity_fix/${DATE}' USING PigStorage('\t');
+
 

@@ -1,4 +1,7 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython AS namefilter
+--file to generate the average number of accesses over certain time periods
+
+
 traces = LOAD '/user/lspiedel/rucio_expanded_2017/' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
@@ -161,6 +164,7 @@ average_reduc = FOREACH average GENERATE ((average_reduc::name IS NULL) ? averag
     ((acc_13 IS NULL) ? 0 : acc_13) as acc_13,
     ((average14::acc_14 IS NULL) ? 0 : average14::acc_14) as acc_14;
 
+--generate the averages
 group_name = GROUP average_reduc ALL;
 dist = FOREACH group_name {
     avg_0 = AVG(average_reduc.acc_0);

@@ -28,9 +28,14 @@ from labels import get_labels
 #from udf_namefilter import isRobot, getUser
 sqlContext = SQLContext(sc)
 
+#change this to change month calcualted on
+month = 1
+date = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month, month+1, month+2)
+date2 = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month+3, month+4, month+5)
+
 #read in two months of data
-lines01 = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-01-*")
-lines02 = sc.textFile("/user/lspiedel/rucio_expanded_2017/2017-02-*")
+lines01 = sc.textFile(date)
+lines02 = sc.textFile(date2)
 
 #add schema
 traces01 = readIn(lines01, '\t')
@@ -49,7 +54,7 @@ df_prepped02 = df02.select("name").distinct()
 
 
 #function to apply labels
-df_labeled = get_labels(df_prepped01, df_prepped02).drop("name")
+df_labeled = get_labels(df_prepped01, df_prepped02)
 df_labeled = df_labeled.na.drop().drop("version_idx") 
 cols_for_ml = df_prepped01.drop("name").drop("version_idx").schema.names
 
@@ -59,27 +64,31 @@ labelIndexer = mlf.StringIndexer(inputCol="Label", outputCol="Label_idx")
 #vectorise the input
 toVec = mlf.VectorAssembler(inputCols=cols_for_ml, outputCol="Features")
 #classify
-classifier = DecisionTreeClassifier(labelCol="Label_idx", featuresCol="Features", maxBins = 137)
+classifier = DecisionTreeClassifier(labelCol="Label_idx", featuresCol="Features", maxDepth=10, maxBins = 200)
 
+#create pipline of the stages and use it to train and test
 pipeline = ml.Pipeline(stages=[labelIndexer, toVec, classifier])
-
-train, test = df_labeled.randomSplit([0.9, 0.1], seed=12345)
-
+train, test = df_labeled.randomSplit([0.7, 0.3], seed=12345)
 df_pip = pipeline.fit(train)
 predicted = df_pip.transform(test)
-predicted.select("Features", "Label_idx", "prediction").show()
+#print result
+predicted.select("name", "Label_idx", "prediction", "rawPrediction", "probability").show(30, False)
+
+#function to evaluate result
 def evaluate(method, predicted):
     evaluator_acc = MulticlassClassificationEvaluator(
         labelCol="Label_idx", predictionCol="prediction", metricName=method)
-    accuracy = evaluator.evaluate(predicted)
+    accuracy = evaluator_acc.evaluate(predicted)
     return accuracy
+bin_evaluator = BinaryClassificationEvaluator(labelCol="Label_idx", rawPredictionCol="rawPrediction")
 
-print "precision is " + evaluate("accuracy", predicted)
-print "Recall is " + evaluate("recall", predicted)
-#print "precision is " + evaluate(accuracy, predicted)
-#print "precision is " + evaluate(accuracy, predicted)
-bin_eval = BinaryClassificationEvaluator(labelCol="Label_idx", rawPredictionCol="rawPrediction")
-print bin_eval.evaluate(predicted)
-treeModel = df_pip.stages[3]
-# summary only
+print month
+print "Precision is {}".format(evaluate("precision", predicted))
+print "Recall is %f" % evaluate("weightedRecall", predicted)
+print "Weighted precision is is {}".format(evaluate("weightedPrecision", predicted))
+print "f1 is {}".format(evaluate("f1", predicted))
+print "area under ROC curve is {}".format(bin_evaluator.evaluate(predicted))
+
+#print summary
+treeModel = df_pip.stages[2]
 print(treeModel)

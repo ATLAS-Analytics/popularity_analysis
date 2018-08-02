@@ -1,5 +1,5 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython as namefilter
-
+--script to find number of accesses by each user
 traces = LOAD '/user/lspiedel/rucio_expanded_2017/' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,

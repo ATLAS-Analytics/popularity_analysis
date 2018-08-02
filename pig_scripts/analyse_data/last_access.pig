@@ -1,3 +1,5 @@
+--script to find the last access for each file within the time preriod
+
 
 traces = LOAD '/user/rucio01/tmp/rucio_popularity/2017-*' USING PigStorage('\t') AS (
 	timestamp:chararray,

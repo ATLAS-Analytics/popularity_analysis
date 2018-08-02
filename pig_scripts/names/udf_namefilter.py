@@ -1,4 +1,6 @@
 import re
+#udfs based on usernames
+
 #udf to filter out ganga accesses
 @outputSchema("ganga:boolean")
 def isGanga(user):

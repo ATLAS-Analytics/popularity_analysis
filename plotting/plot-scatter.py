@@ -1,15 +1,20 @@
 import matplotlib.pyplot as plt
 
-dist_file = open('scatter/not_ganga/part-r-00000', 'r')
-
-# read in from file and split into x-values and y-values
 datasetCount = []
 counts = []
-for line in dist_file:
-    line = line.rstrip('\n')
-    seperate = line.split('\t')
-    datasetCount += [float(seperate[0])]
-    counts += [int(seperate[1])]
+
+
+for i in range(0,4):
+    print i
+    path = 'scatter/not_ganga/part-r-0000{}'.format(i)
+    dist_file = open(path, 'r')
+
+# read in from file and split into x-values and y-values
+    for line in dist_file:
+        line = line.rstrip('\n')
+        seperate = line.split('\t')
+        datasetCount += [float(seperate[0])]
+        counts += [int(seperate[1])]
 
 #plot settings
 f = plt.figure()
@@ -27,4 +32,4 @@ plt.plot(datasetCount, counts, marker='o', linewidth=0)
 #plt.xlim(0,50000)
 
 plt.show()
-f.savefig("scatter/not_ganga.png")
+#f.savefig("scatter/not_ganga.png")

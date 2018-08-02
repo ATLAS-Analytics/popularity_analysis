@@ -1,9 +1,8 @@
 #!/bin/bash
+#bash script to run rucio_popularity.pig for each day in a month
 
 for DAY in {1..30}
 do
-
-#pop_date="2018-01-01"
     # get date string
     if [ $DAY -lt 10 ]
     then

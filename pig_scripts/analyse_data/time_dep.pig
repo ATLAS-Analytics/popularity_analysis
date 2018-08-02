@@ -1,5 +1,7 @@
 REGISTER /afs/cern.ch/user/l/lspiedel/public/popularity_analysis/pig_scripts/names/udf_namefilter.py USING jython AS namefilter
 
+--script to find 
+
 traces = LOAD '/user/lspiedel/rucio_expanded_2017/2017-01-0*' USING PigStorage('\t') AS (
 	timestamp:chararray,
 	user:chararray,
@@ -30,6 +32,7 @@ filter_robot = FILTER filter_null BY NOT namefilter.isRobot(user);
 --get full names and timestamp as unix time in days
 names_full = FOREACH filter_robot GENERATE FLOOR(ToUnixTime(ToDate(timestamp, 'yyyy-MM-dd'))/604800) as timestamp, namefilter.getUser(user)as user, scope .. ;
 
+--group by dataset (including dataset specific features) and timestamp and sum over all the different types of accesses and find the age of the file
 group_name = GROUP names_full BY (.. length, created_at );
 time_sep = FOREACH group_name {
     ops = SUM(names_full.ops);
@@ -40,6 +43,7 @@ time_sep = FOREACH group_name {
     GENERATE FLATTEN(group), ops, file_ops, distinct_files, panda_jobs;}
 DESCRIBE time_sep;
 
+--group by the timestamp and find the average of each dat
 group_time = GROUP time_sep BY group::timestamp
 time_dep = FOREACH group_time {
     ops = AVG(time_sep.ops);

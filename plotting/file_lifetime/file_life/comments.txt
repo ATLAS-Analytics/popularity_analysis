@@ -1,0 +1,1 @@
+non ganga accesses fall off faster, but the general shape is the same

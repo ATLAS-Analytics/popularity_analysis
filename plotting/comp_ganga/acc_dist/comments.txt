@@ -1,0 +1,1 @@
+Pattern with ganga has a peak - possibly because test files are changed at a regular rate so it gets to a similar amount of accesses on one file before changing

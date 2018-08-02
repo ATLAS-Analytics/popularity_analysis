@@ -4,7 +4,7 @@
 
 ## Project to use machine learning to analyse unused datasets
 
-###How to run machine learning
+### How to run machine learning
 Machine learning is performed in the file pipe.py. This can be run using ./testspark.sh \<filename\>.
 To run the pyspark code you will need to set up a virtual env using the requirements below. I acheived this by setting up the virtual env to point to a local copy of python2.7.11 This could then be used on the analytix cluster and lxplus.cern.ch
 
@@ -45,7 +45,7 @@ The output of pipe.py is the first 20 values of the prediction dataframe once it
 
 
 ### REQUIREMENTS:
-####Python
+#### Python
 python==2.7.11
 backports.functools-lru-cache==1.5
 cycler==0.10.0
@@ -58,7 +58,7 @@ python-dateutil==2.7.3
 pytz==2018.5
 six==1.11.0
 subprocess32==3.5.2
-####Pyspark
+#### Pyspark
 spark 1.6.0
-####pig 
+#### pig 
 Apache Pig version 0.12.0-cdh5.7
