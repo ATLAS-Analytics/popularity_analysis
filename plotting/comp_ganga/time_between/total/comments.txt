@@ -1,0 +1,2 @@
+- ganga accesses tend to go on for much longer - we see a later spike on the graph 
+- generally most are accessed only within one day

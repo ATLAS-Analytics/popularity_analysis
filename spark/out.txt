@@ -6,6 +6,71 @@ f1 is 0.772680437145
 area under ROC curve is 0.723455323287                                          
 DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4093849f1d002a272380) of depth 10 with 967 nodes
 
+2017-02
+Precision is 0.805957044441                                                     
+Recall is 0.805957                                                              
+Weighted precision is is 0.805374795622                                         
+f1 is 0.805067011586                                                            
+area under ROC curve is 0.751827955017                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4498b43cacb8494ea711) of depth 10 with 895 nodes
+
+2017-03
+Precision is 0.84783567822                                                      
+Recall is 0.847836                                                              
+Weighted precision is is 0.847977352191                                         
+f1 is 0.847892748909                                                            
+area under ROC curve is 0.805807163283                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_411d9324b8c0b0101062) of depth 10 with 935 nodes
+
+
+2017-01 - 2017-03
+Precision is 0.791452314998                                                     
+Recall is 0.791452                                                              
+Weighted precision is is 0.791743457182                                         
+f1 is 0.791374974215                                                            
+area under ROC curve is 0.73917249134                                           
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4c4887fb2316df47dfd7) of depth 10 with 1067 nodes
+
+2017-02 - 2017-04
+Precision is 0.79781959547                                                      
+Recall is 0.797820                                                              
+Weighted precision is is 0.802186256477                                         
+f1 is 0.797492235246                                                            
+area under ROC curve is 0.762604112942                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_450da66af6d998e1278e) of depth 10 with 1173 nodes
+
+2017-03 - 2017-05
+Precision is 0.844875035102                                                     
+Recall is 0.844875                                                              
+Weighted precision is is 0.850023187831                                         
+f1 is 0.844693357943                                                            
+area under ROC curve is 0.874211058568                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4ebab518ce2c123f5bf7) of depth 10 with 979 nodes
+
+2017-04 - 2017-06
+Precision is 0.852078239609                                                     
+Recall is 0.852078                                                              
+Weighted precision is is 0.852457489559                                         
+f1 is 0.852089656948                                                            
+area under ROC curve is 0.848827738583                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4269861a561b7e083a74) of depth 10 with 915 nodes
+
+2017-05 - 2017-07
+Precision is 0.875203411705                                                     
+Recall is 0.875203                                                              
+Weighted precision is is 0.880687738893                                         
+f1 is 0.874794503111                                                            
+area under ROC curve is 0.876935328379                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4a84b1eafdf22d31d31b) of depth 10 with 1037 nodes
+
+2017-06 - 2017-08
+Precision is 0.855755894591                                                     
+Recall is 0.855756                                                              
+Weighted precision is is 0.856023458722                                         
+f1 is 0.855853996688                                                            
+area under ROC curve is 0.863629701511                                          
+DecisionTreeClassificationModel (uid=DecisionTreeClassifier_44ab9a00c655c7abee93) of depth 10 with 969 nodes
+
 2017-07 - 2017-09
 Precision is 0.885384215992                                                     
 Recall is 0.885384                                                              
@@ -13,4 +78,5 @@ Weighted precision is is 0.885646557604
 f1 is 0.88547801588                                                             
 area under ROC curve is 0.909873003815                                          
 DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4ec3892001dfdd68747f) of depth 10 with 969 nodes
+
 

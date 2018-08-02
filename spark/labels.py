@@ -10,6 +10,7 @@ def get_labels(df_current, df_next):
     #join by name to see which value in df_current are in df_next
     df_comp = df_current.join(df_nameList, df_current.name == df_nameList.Label, how='left_outer')
     df_lab = df_comp.withColumn("Label", F.when(df_comp.Label.isNotNull(), "Popular").otherwise("Unpopular"))
-    df_lab.printSchema()
+
+    #print out how many of each label there are 
     df_lab.groupBy("Label").count().show()
     return df_lab

@@ -30,8 +30,10 @@ sqlContext = SQLContext(sc)
 
 #change this to change month calcualted on
 month = 1
-date = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month, month+1, month+2)
-date2 = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month+3, month+4, month+5)
+#date = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month, month+1, month+2)
+#date2 = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*,/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month+3, month+4, month+5)
+date = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month)
+date2 = "/user/lspiedel/rucio_expanded_2017/2017-%02d-*" % (month + 1)
 
 #read in two months of data
 lines01 = sc.textFile(date)
@@ -82,7 +84,7 @@ def evaluate(method, predicted):
     return accuracy
 bin_evaluator = BinaryClassificationEvaluator(labelCol="Label_idx", rawPredictionCol="rawPrediction")
 
-print month
+print date
 print "Precision is {}".format(evaluate("precision", predicted))
 print "Recall is %f" % evaluate("weightedRecall", predicted)
 print "Weighted precision is is {}".format(evaluate("weightedPrecision", predicted))
