@@ -8,7 +8,7 @@
 Machine learning is performed in the file pipe.py. This can be run using ./testspark.sh \<filename\>.
 To run the pyspark code you will need to set up a virtual env using the requirements below. I acheived this by setting up the virtual env to point to a local copy of python2.7.11 This could then be used on the analytix cluster and lxplus.cern.ch
 
-The raw data is the traces found in /user/rucio01/traces/traces.{DATE}.\* on hdfs. The did's containing information specific to each dataset are in /user/rucio01/dumps/{DATE}/dids.
+The raw data is the traces found in /user/rucio01/traces/traces.{DATE}.\* on hdfs. The did's containing information specific to each dataset are in /user/rucio01/dumps/{DATE}/dids. These are all on the analytix cluster, and access is given by zbigniew.baranowski@cern.ch.
 
 These can be converted to the appropriate form for input into pyspark using pig\_scrips/get\_data/get\_files.sh, modifying get\_files to cover the appropriate dates. Alternatively you can directly modify the popularity traces found in /user/rucio01/tmp/rucio\_popularity/{DATE} using the file on github pig\_scripts/get\_data/combine\_traces.pig. Both of these currently save to the space in hadoop under lspiedel, so that should be edited.
 
