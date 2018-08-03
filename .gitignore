@@ -2,3 +2,4 @@
 test/
 venv2.7/
 *.pyc
+dists.txt
